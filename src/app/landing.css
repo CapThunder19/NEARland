@@ -1,0 +1,749 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap');
+
+:root {
+  --neon-cyan: #00f0ff;
+  --neon-green: #39ff14;
+  --neon-amber: #ff9900;
+}
+
+body:has(.landing-wrapper) .global-nav {
+  display: none !important;
+}
+
+.landing-wrapper {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Outfit', sans-serif;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.scroll-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  scroll-snap-align: start;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.scene-bg {
+  position: absolute;
+  inset: -5%;
+  width: 110%;
+  height: 110%;
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+  will-change: transform, filter;
+  image-rendering: pixelated;
+}
+
+.scene-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4,6,8,0.35), rgba(6,8,12,0.65));
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* make hero (page 1) a bit lighter so the background art shows through more */
+.scroll-page:first-of-type .scene-overlay {
+  background: linear-gradient(180deg, rgba(10,12,14,0.06), rgba(8,10,12,0.18));
+}
+
+/* page 2 (features) — consolidated smooth transition and overlays
+   Smooth top-to-bottom gradient from light green/brown at the top toward darker tones at bottom.
+   Includes a subtle overlay on the background image to blend colors and a gentle vignette for content.
+*/
+.scroll-page:nth-of-type(2) {
+  background: linear-gradient(180deg,
+    rgba(177, 255, 137, 0.936) 0%,   /* light greenish at very top */
+    rgba(194, 236, 134, 0.49) 18%,
+    rgba(110, 181, 12, 0.497) 36%,  /* soft mid green */
+    rgba(218, 203, 77, 0.481) 58%,  /* warm mid brown */
+    rgba(100, 50, 7, 0.392) 82%,
+    rgba(40, 21, 10, 0.785) 100%     /* dark brown bottom (no black) */
+  );
+}
+
+/* subtle filter on the background image */
+.scroll-page:nth-of-type(2) .scene-bg {
+  filter: brightness(1.02) contrast(1.04) saturate(1.06);
+}
+
+.scroll-page:nth-of-type(2) .scene-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2; /* sits above bg (z=1) and below scene-overlay (z=3) */
+  background: linear-gradient(180deg,
+    rgba(32, 226, 71, 0.748) 0%,
+    rgba(163, 215, 59, 0.807) 14%, /* subtle green tint */
+    rgba(248, 133, 18, 0.823) 36%,  /* tan transition */
+    rgba(249, 155, 79, 0.844) 70%,
+    rgba(147, 69, 25, 0.892) 100%    /* brown overlay */
+  );
+  mix-blend-mode: overlay;
+}
+
+/* page 2 content wrapper — gentle vignette to lift center content */
+.scroll-page:nth-of-type(2) .page-content-wrapper.page-center {
+  background: radial-gradient(ellipse at 50% 30%, rgba(200,240,180,0.06) 0%, rgba(180,140,100,0.04) 45%, transparent 75%);
+  align-items: center;
+}
+
+/* Page 3: tune scene-bg contrast/brightness and heading contrast */
+.scroll-page:nth-of-type(3) .scene-bg {
+  filter: contrast(1.06) brightness(0.92) saturate(1.05);
+  mix-blend-mode: overlay;
+}
+
+.scroll-page:nth-of-type(3) .page-title {
+  color: #f6ffd9;
+  text-shadow: 0 0 22px rgba(120, 200, 90, 0.48), 0 8px 18px rgba(0,0,0,0.9);
+}
+
+.scroll-page:nth-of-type(3) .page-subtitle {
+  color: #c8d6c2;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+
+/* Page 3: mining layout */
+.scroll-page:nth-of-type(3) {
+  /* farm page: lighter warm background with a darker top overlay for contrast */
+  background: linear-gradient(180deg, #15301a 0%, #112917 30%, #0b2112 70%, rgba(8,10,8,0) 100%);
+}
+
+.scroll-page:nth-of-type(3) .scene-overlay {
+  /* darker at top to create contrast against the lighter farm background */
+  background: linear-gradient(180deg, rgba(6,8,6,0.45), rgba(6,8,6,0.06));
+}
+
+.mining-section {
+  display: flex;
+  gap: 48px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.mining-content {
+  flex: 1 1 48%;
+  min-width: 320px;
+  padding: 12px 8px;
+}
+
+.mining-art {
+  flex: 1 1 48%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mining-art img {
+  max-width: 520px;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  image-rendering: pixelated;
+}
+
+.mining-list {
+  margin-top: 18px;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  color: #cfd8cf;
+  font-family: 'Silkscreen', sans-serif;
+}
+
+.mining-list li strong { color: #d7f3b2; }
+
+.mining-cta { margin-top: 20px; }
+
+/* =========================================
+   HERO SECTION (PAGE 1)
+   ========================================= */
+.landing-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px 60px;
+}
+
+.landing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-text {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 18px;
+  color: #ffffff;
+  letter-spacing: 2px;
+  text-shadow: 
+    -2px -2px 0 #451a03,
+     2px -2px 0 #451a03,
+    -2px  2px 0 #451a03,
+     2px  2px 0 #451a03,
+     0    4px 0 #451a03,
+     0    8px 15px rgba(0,0,0,0.8);
+}
+
+.wallet-connected-badge {
+  background: #78350f;
+  border: 3px solid #451a03;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-family: 'Press Start 2P', cursive;
+  color: #fef3c7;
+  font-size: 10px;
+  box-shadow: 0 4px 0 #451a03, 0 8px 10px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 0 rgba(0,0,0,0.5);
+}
+
+.hero-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  margin: 0 auto;
+  padding-top: 2vh;
+  max-width: 800px;
+}
+
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0f;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: #fff;
+  font-family: 'Press Start 2P', cursive;
+}
+
+.loader-bar {
+  width: 300px;
+  height: 12px;
+  background: #452a1b;
+  border: 2px solid #78350f;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.loader-progress {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, #65a30d, #16a34a);
+  transition: width 0.2s linear;
+}
+
+.loader-percentage {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+  .hero-title {
+    font-family: 'Silkscreen', sans-serif;
+    font-size: 82px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    -webkit-text-stroke: 2px #452a1b; /* dark wood border */
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+    animation: text-glitch-quick 1s linear forwards; /* faster appearance */
+  }
+
+  /* Cyber glitch overlay - run once for 5 seconds */
+  .hero-title::before,
+  .hero-title::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    color: #fff;
+    background: transparent;
+    clip: rect(0, 900px, 0, 0);
+  }
+
+  .hero-title::before {
+    left: 2px;
+    text-shadow: -2px 0 #ff00c1;
+    animation: cyber-glitch 5s linear forwards; /* 5 sec glitch */
+  }
+
+  .hero-title::after {
+    left: -2px;
+    text-shadow: 2px 0 #00fff9;
+    animation: cyber-glitch 5s linear forwards;
+  }
+
+@keyframes cyber-glitch {
+  0% { clip: rect(0, 900px, 0, 0); }
+  10% { clip: rect(10px, 900px, 30px, 0); }
+  20% { clip: rect(20px, 900px, 40px, 0); }
+  30% { clip: rect(0, 900px, 0, 0); }
+  40% { clip: rect(15px, 900px, 35px, 0); }
+  50% { clip: rect(0, 900px, 0, 0); }
+  60% { clip: rect(25px, 900px, 45px, 0); }
+  70% { clip: rect(0, 900px, 0, 0); }
+  80% { clip: rect(5px, 900px, 25px, 0); }
+  90% { clip: rect(0, 900px, 0, 0); }
+  100% { clip: rect(0, 900px, 0, 0); }
+}
+
+@keyframes text-glitch-quick {
+  0% { opacity: 0; transform: translateX(-5px); }
+  20% { opacity: 0.6; transform: translateX(3px); }
+  40% { opacity: 0.8; transform: translateX(-2px); }
+  60% { opacity: 0.9; transform: translateX(1px); }
+  80% { opacity: 0.95; transform: translateX(0px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes text-glitch-enter {
+  0% { opacity: 0; transform: translateX(0); }
+  5% { opacity: 1; transform: translateX(-4px); filter: drop-shadow(2px 0 0 red) drop-shadow(-2px 0 0 cyan); }
+  10% { transform: translateX(4px); filter: drop-shadow(-2px 0 0 magenta) drop-shadow(2px 0 0 lime); }
+  15% { transform: translateX(-2px); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+  20% { transform: translateX(2px); }
+  25% { transform: translateX(0); }
+  30% { opacity: 1; }
+  40% { opacity: 0.9; }
+  50% { opacity: 1; }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.text-gradient {
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-image: linear-gradient(to right, #65a30d, #16a34a); /* Darker green gradient */
+}
+
+.hero-subtitle {
+  font-size: 22px;
+  font-weight: 300;
+  color: #c0c0d0;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 4px 15px rgba(0,0,0,0.9);
+}
+
+.cta-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.cta-hint {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  color: #ffffff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+  opacity: 1;
+  animation: pulseHint 2.5s infinite ease-in-out;
+  margin-top: 20px;
+}
+
+.btn-connect {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 11px;
+  padding: 14px 28px;
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.btn-connect:hover {
+  background: #ffffff;
+  color: #000000;
+  transform: scale(1.08) translateY(-3px);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+}
+
+.btn-connect:active {
+  transform: scale(0.95);
+}
+
+.wallet-connected-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 4px;
+  color: #ffffff;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+@keyframes pulseHint {
+  0%, 100% { opacity: 0.5; transform: scale(0.95); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.btn-enter-game {
+  position: relative;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 14px;
+  padding: 20px 40px;
+  background: #fff;
+  color: #000;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+.btn-enter-game:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 40px rgba(255, 255, 255, 0.5);
+}
+
+.btn-glow {
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+  transform: skewX(-20deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  20% { left: 200%; }
+  100% { left: 200%; }
+}
+
+.bottom-info-panel {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  background: rgba(10, 10, 15, 0.6);
+  padding: 16px 32px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  width: fit-content;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.info-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: #777;
+  font-family: 'Silkscreen', sans-serif;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 1px;
+}
+
+.text-neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.4); }
+.text-neon-green { color: var(--neon-green); text-shadow: 0 0 10px rgba(57, 255, 20, 0.4); }
+.text-neon-amber { color: var(--neon-amber); text-shadow: 0 0 10px rgba(255, 153, 0, 0.4); }
+.text-neon-magenta { color: #ff007f; text-shadow: 0 0 10px rgba(255, 0, 127, 0.4); }
+
+.info-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255,255,255,0.1);
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: bounce 2s infinite;
+}
+
+.scroll-indicator-text {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  color: #fff;
+  text-shadow: 0 2px 4px #000;
+}
+
+.scroll-arrow {
+  width: 16px;
+  height: 16px;
+  border-right: 3px solid #fff;
+  border-bottom: 3px solid #fff;
+  transform: rotate(45deg);
+  filter: drop-shadow(0 2px 4px #000);
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+  40% { transform: translateY(-10px) translateX(-50%); }
+  60% { transform: translateY(-5px) translateX(-50%); }
+}
+
+/* =========================================
+   SECTOR PAGES (PAGE 2 & 3)
+   ========================================= */
+.page-content-wrapper {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 80px;
+}
+
+.page-content-wrapper.page-center {
+  align-items: center;
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 40%, rgba(101, 163, 13, 0.08) 0%, transparent 70%);
+}
+
+.features-header {
+  margin-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.page-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 54px;
+  color: #e9ffdb;
+  text-shadow:
+    0 0 18px rgba(101, 163, 13, 0.45),
+    0 6px 18px rgba(0,0,0,0.85);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+}
+
+.page-subtitle {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px;
+  font-weight: 300;
+  color: #a0a0b8;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ---- Features Grid (Page 2) ---- */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.features-grid {
+  justify-items: center;
+  align-items: stretch; /* ensure grid items stretch to equal height */
+  margin: 0 auto;
+  grid-auto-rows: 420px;  /* fixed row height so cards match size */
+}
+
+/* Pixel-sprites used on page 2 only (prevent global absolute positioning) */
+.scroll-page:nth-of-type(2) .pixel-sprite {
+  position: absolute;
+  z-index: 9;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.6));
+  transition: transform 0.8s ease, opacity 0.6s;
+}
+
+/* center any sprite that is placed with left: 50% on page 2 */
+.scroll-page:nth-of-type(2) .pixel-sprite[style*="left: 50%"] {
+  transform: translateX(-50%);
+}
+
+.feature-card {
+  background: linear-gradient(180deg, rgba(20,34,12,0.95), rgba(18,26,10,0.92));
+  border: 3px solid rgba(8, 48, 16, 0.55);
+  border-radius: 6px; /* more blocky */
+  padding: 24px 18px;
+  backdrop-filter: blur(6px);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.6), inset 0 0 0 4px rgba(10,20,8,0.55);
+  image-rendering: pixelated;
+}
+.feature-card {
+  height: 100%;            /* fill the grid row */
+  justify-content: space-between; /* space content evenly */
+}
+
+.feature-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(100, 180, 30, 0.8);
+  box-shadow:
+    0 0 28px rgba(100, 180, 30, 0.14),
+    0 16px 48px rgba(0, 0, 0, 0.65);
+}
+
+.feature-icon {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 0 6px rgba(101, 163, 13, 0.5));
+}
+
+.feature-sprite-wrap {
+  width: 120px;
+  height: 120px;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #2a3716, #3a2612); /* green/brown mix */
+  border: 4px solid rgba(8,48,16,0.7);
+  border-radius: 4px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.6), inset 0 0 0 3px rgba(30,40,20,0.06);
+  image-rendering: pixelated;
+}
+
+.feature-sprite {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  border: 2px solid rgba(0,0,0,0.2);
+}
+
+.feature-card-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 14px;
+  color: #8df75a;
+  text-shadow: 0 0 8px rgba(80, 200, 60, 0.18);
+}
+
+.feature-card-desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: #c7d0c2;
+  line-height: 1.4;
+  font-family: 'Silkscreen', sans-serif;
+}
+
+.page-desc {
+  font-size: 24px;
+  font-weight: 300;
+  max-width: 600px;
+  line-height: 1.5;
+  color: #ddd;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+  margin-bottom: 40px;
+}
+
+.page-card {
+  background: rgba(10, 10, 15, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  display: flex;
+  gap: 40px;
+}
+
+/* Fixed Header for lower pages */
+.fixed-top-nav {
+  position: fixed;
+  top: 40px;
+  right: 60px;
+  z-index: 999;
+}
+
+/* Game Elements (Loot Drops) */
+.game-loot-item {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  z-index: 5;
+  background-size: contain;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8));
+  pointer-events: none;
+  bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .landing-content, .page-content-wrapper { padding: 24px; }
+  .hero-title, .page-title { font-size: 40px; }
+  .hero-subtitle, .page-desc { font-size: 16px; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .bottom-info-panel, .page-card {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .features-grid { grid-template-columns: 1fr; }
+}
+

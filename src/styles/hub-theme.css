@@ -1,0 +1,627 @@
+/* ==========================================================================
+   QuantumQie — Pixel Hub Theme (Factory Hub + Landing alignment)
+   Used on Worker Hub, Marketplace, Sepolia Exchange, Leaderboard
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap');
+
+:root {
+  --pixel-ink: #fef3c7;
+  --pixel-ink-dim: #c7d0c2;
+  --pixel-soil: #451a03;
+  --pixel-soil-dark: #131110;
+  --pixel-grass: #65a30d;
+  --pixel-grass-bright: #8df75a;
+  --pixel-panel: rgba(12, 14, 22, 0.92);
+  --pixel-panel-edge: rgba(0, 212, 255, 0.35);
+  --pixel-card: linear-gradient(180deg, rgba(20, 34, 12, 0.95), rgba(18, 26, 10, 0.92));
+  --pixel-card-border: rgba(101, 163, 13, 0.45);
+}
+
+/* Scrollable hub routes (game canvas stays full-screen) */
+body:has(.hub-page) {
+  overflow: auto;
+  cursor: default;
+  background: var(--bg-void);
+}
+
+body:has(.hub-page)::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(101, 163, 13, 0.12), transparent 42%),
+    radial-gradient(circle at 88% 12%, rgba(0, 212, 255, 0.08), transparent 38%),
+    radial-gradient(circle at 70% 88%, rgba(255, 140, 0, 0.06), transparent 40%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 31px,
+      rgba(30, 50, 20, 0.15) 31px,
+      rgba(30, 50, 20, 0.15) 32px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 31px,
+      rgba(30, 50, 20, 0.12) 31px,
+      rgba(30, 50, 20, 0.12) 32px
+    ),
+    linear-gradient(180deg, #0a1208 0%, #0a0a0f 45%, #0d0d14 100%);
+}
+
+/* Pixel navigation (all routes except landing) */
+.global-nav-pixel {
+  height: 54px;
+  background: linear-gradient(180deg, rgba(18, 26, 10, 0.97), rgba(10, 12, 18, 0.95));
+  border-bottom: 3px solid var(--pixel-soil);
+  box-shadow: 0 4px 0 rgba(69, 26, 3, 0.6), 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.global-nav-pixel .nav-logo {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 11px;
+  color: var(--pixel-ink);
+  text-shadow:
+    2px 2px 0 var(--pixel-soil),
+    0 0 12px rgba(101, 163, 13, 0.35);
+  letter-spacing: 1px;
+}
+
+.global-nav-pixel .nav-link {
+  font-family: 'Silkscreen', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: var(--pixel-ink-dim);
+  position: relative;
+  padding: 4px 0;
+}
+
+.global-nav-pixel .nav-link:hover,
+.global-nav-pixel .nav-link-active {
+  color: var(--pixel-grass-bright);
+  text-shadow: 0 0 10px rgba(141, 247, 90, 0.4);
+}
+
+.global-nav-pixel .nav-link-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 3px;
+  background: var(--pixel-grass);
+  box-shadow: 0 0 8px rgba(101, 163, 13, 0.6);
+}
+
+/* Hub page shell */
+.hub-page {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  padding: 72px 40px 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+  overflow: auto;
+  font-family: 'Silkscreen', sans-serif;
+  color: var(--text-primary);
+}
+
+.hub-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(ellipse at 50% 0%, transparent 40%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+.hub-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Shared headers */
+.hub-page-header,
+.market-header,
+.exchange-hero,
+.hub-page .workers-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+  animation: hubFadeUp 0.45s ease both;
+}
+
+.hub-kicker,
+.market-kicker,
+.exchange-kicker {
+  font-family: 'Silkscreen', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--pixel-grass-bright);
+  margin-bottom: 8px;
+  text-shadow: 0 0 12px rgba(101, 163, 13, 0.35);
+}
+
+.hub-title,
+.page-title,
+.market-title,
+.exchange-title,
+.leaderboard-panel h3 {
+  font-family: 'Press Start 2P', cursive;
+  font-size: clamp(18px, 3vw, 26px);
+  line-height: 1.5;
+  color: var(--pixel-ink);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow:
+    2px 2px 0 var(--pixel-soil),
+    0 0 18px rgba(101, 163, 13, 0.25);
+  margin-bottom: 0;
+}
+
+.hub-subtitle,
+.market-subtitle,
+.exchange-subtitle {
+  margin-top: 10px;
+  max-width: 560px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--pixel-ink-dim);
+  font-weight: 400;
+}
+
+.hub-quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.hub-quick-link {
+  font-family: 'Silkscreen', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--pixel-ink-dim);
+  padding: 6px 10px;
+  border: 2px solid rgba(101, 163, 13, 0.25);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.hub-quick-link:hover {
+  color: var(--pixel-grass-bright);
+  border-color: rgba(101, 163, 13, 0.55);
+  background: rgba(101, 163, 13, 0.1);
+}
+
+.hub-page-body {
+  animation: hubFadeUp 0.5s ease 0.08s both;
+}
+
+/* Stat / wallet chips in header */
+.hub-stat-chip,
+.market-balance,
+.exchange-wallet-card {
+  background: var(--pixel-card);
+  border: 3px solid var(--pixel-card-border);
+  border-radius: 4px;
+  padding: 14px 18px;
+  min-width: 200px;
+  text-align: right;
+  box-shadow:
+    0 4px 0 rgba(19, 17, 16, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+}
+
+.hub-stat-label,
+.market-balance-label,
+.exchange-wallet-label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.hub-stat-value,
+.market-balance-value,
+.exchange-wallet-value {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 14px;
+  color: var(--accent-green);
+  line-height: 1.6;
+}
+
+/* Cards */
+.hub-page .dashboard-card,
+.hub-page .market-card,
+.hub-page .exchange-card,
+.hub-page .leaderboard-panel {
+  background: var(--glass-bg);
+  border: 2px solid var(--glass-border);
+  border-radius: 4px;
+  padding: 20px 22px;
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow:
+    var(--shadow-panel),
+    inset 0 0 0 1px rgba(101, 163, 13, 0.08);
+  animation: hubFadeUp 0.45s ease both;
+}
+
+.hub-page .dashboard-card h2,
+.hub-page .market-card h2,
+.hub-page .exchange-card h2 {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 11px;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+/* Pixel buttons */
+.hub-page .buy-btn,
+.hub-page .market-btn,
+.hub-page .exchange-btn,
+.hub-page .btn,
+.leaderboard-panel .btn {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 9px;
+  line-height: 1.5;
+  padding: 12px 16px;
+  border-radius: 0;
+  border: 3px solid var(--pixel-soil-dark);
+  background: #fef3c7;
+  color: var(--pixel-soil-dark);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
+  box-shadow: 0 5px 0 var(--pixel-soil-dark);
+}
+
+.hub-page .buy-btn:hover:not(:disabled),
+.hub-page .market-btn:hover:not(:disabled),
+.hub-page .exchange-btn:hover:not(:disabled),
+.hub-page .btn:hover:not(:disabled),
+.leaderboard-panel .btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 var(--pixel-soil-dark);
+  background: #ffffff;
+}
+
+.hub-page .buy-btn:active:not(:disabled),
+.hub-page .market-btn:active:not(:disabled),
+.hub-page .exchange-btn:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--pixel-soil-dark);
+}
+
+.hub-page .buy-btn:disabled,
+.hub-page .market-btn:disabled,
+.hub-page .exchange-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: #6b7280;
+  color: #1f2937;
+  border-color: #374151;
+  box-shadow: 0 3px 0 #1f2937;
+}
+
+.hub-page .market-btn,
+.hub-page .exchange-btn {
+  background: rgba(0, 212, 255, 0.12);
+  color: var(--accent-cyan);
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 4px 0 rgba(0, 80, 100, 0.8);
+}
+
+.hub-page .market-btn-accent,
+.hub-page .exchange-btn-accent,
+.hub-page .exchange-btn-buy {
+  background: rgba(255, 140, 0, 0.15);
+  color: var(--accent-amber);
+  border-color: rgba(255, 140, 0, 0.55);
+  box-shadow: 0 4px 0 rgba(120, 60, 0, 0.8);
+}
+
+.hub-page .market-btn-ghost,
+.hub-page .exchange-btn:not(.exchange-btn-accent):not(.exchange-btn-buy) {
+  background: rgba(12, 14, 22, 0.8);
+  color: var(--pixel-ink-dim);
+}
+
+/* List rows */
+.hub-page .worker-list-item,
+.hub-page .storage-item,
+.hub-page .market-item,
+.hub-page .exchange-listing,
+.hub-page .leaderboard-row,
+.hub-page .shop-item,
+.hub-page .inv-item,
+.hub-page .summary-tile {
+  background: rgba(0, 0, 0, 0.28);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  image-rendering: pixelated;
+}
+
+.hub-page .shop-icon {
+  border-radius: 4px;
+  border: 2px solid rgba(101, 163, 13, 0.3);
+  background: rgba(101, 163, 13, 0.08);
+}
+
+/* Sprites */
+.hub-page .pixel-art,
+.hub-page .feature-sprite,
+.hub-sprite-icon {
+  image-rendering: pixelated;
+  border-radius: 4px;
+  border: 2px solid rgba(101, 163, 13, 0.35);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+
+.hub-page .workers-header .pixel-art {
+  padding: 8px;
+  background: var(--pixel-card);
+}
+
+/* Forms */
+.hub-page select,
+.hub-page input[type='number'],
+.hub-page input[type='text'] {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 2px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text-primary);
+}
+
+.hub-page select:focus,
+.hub-page input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+}
+
+/* Leaderboard */
+.hub-page .leaderboard-panel,
+.page-content.hub-page {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.leaderboard-panel {
+  width: 100%;
+}
+
+.leaderboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.leaderboard-tagline {
+  font-size: 12px;
+  color: var(--text-dim);
+  flex: 1;
+  min-width: 200px;
+}
+
+.leaderboard-list {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  counter-reset: rank;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1.4fr) minmax(140px, 0.9fr) auto 120px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  font-size: 12px;
+}
+
+.leaderboard-row .rank {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  color: var(--pixel-grass-bright);
+}
+
+.leaderboard-name-block {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.leaderboard-row .name {
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-row .wallet {
+  color: var(--text-dim);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-row .score {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  color: var(--accent-cyan);
+}
+
+.leaderboard-meta,
+.leaderboard-error {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.leaderboard-error {
+  color: var(--accent-red);
+}
+
+/* Banners */
+.hub-page .exchange-banner {
+  border-radius: 4px;
+  border-width: 2px;
+  margin-bottom: 18px;
+  font-size: 12px;
+}
+
+.hub-page .exchange-banner.success {
+  border-color: rgba(0, 255, 136, 0.4);
+  color: var(--accent-green);
+  background: rgba(0, 255, 136, 0.08);
+}
+
+.hub-page .exchange-banner.error {
+  border-color: rgba(255, 51, 68, 0.4);
+  color: var(--accent-red);
+  background: rgba(255, 51, 68, 0.08);
+}
+
+/* Empty / loading */
+.hub-page .empty-roster,
+.hub-page .market-loading,
+.hub-page .exchange-loading,
+.hub-page .exchange-empty {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+@keyframes hubFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .hub-page {
+    padding: 68px 20px 32px;
+  }
+
+  .hub-page-header,
+  .market-header,
+  .exchange-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hub-stat-chip,
+  .market-balance,
+  .exchange-wallet-card {
+    width: 100%;
+    text-align: left;
+  }
+
+  .leaderboard-row {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+  }
+
+  .leaderboard-row .score {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+/* Village Viewer */
+.village-viewer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.village-viewer-modal {
+  width: 90vw;
+  max-width: 800px;
+  background: var(--pixel-card);
+  border: 3px solid var(--pixel-card-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.village-viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.village-viewer-close {
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--accent-red);
+  background: rgba(255, 51, 68, 0.1);
+  border-color: rgba(255, 51, 68, 0.4);
+}
+
+.village-viewer-content {
+  flex: 1;
+  min-height: 400px;
+  position: relative;
+  background: #0d0d14; /* matches game grid bg */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.village-viewer-canvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.village-viewer-footer {
+  padding: 12px 24px;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  text-align: right;
+}
+
+.btn-view-village {
+  font-size: 8px !important;
+  padding: 8px 12px !important;
+}
