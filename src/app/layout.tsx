@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
-import "@rainbow-me/rainbowkit/styles.css";
 import Providers from "./providers";
 import WalletButton from "../components/WalletButton";
 import NavLinks from "../components/NavLinks";
-import QieWalletGuard from "../components/QieWalletGuard";
 
 export const metadata: Metadata = {
-  title: "QuantumQie — Factory Builder",
-  description: "Build your factory empire. A Factorio-inspired browser game built with Next.js and Canvas.",
+  title: "NEARland — Farm, Mine, Trade on NEAR",
+  description: "A pixel farming and mining economy game where players own their output and trade it for NEAR.",
 };
 
 export default function RootLayout({
@@ -25,20 +23,18 @@ export default function RootLayout({
       </head>
       <body>
         <Providers>
-          <QieWalletGuard>
-            <nav className="global-nav global-nav-pixel">
-              <Link href="/" className="nav-logo">
-                QuantumQie
-              </Link>
-              <div className="nav-right">
-                <div className="nav-links">
-                  <NavLinks />
-                </div>
-                <WalletButton />
+          <nav className="global-nav global-nav-pixel">
+            <Link href="/" className="nav-logo">
+              NEARland
+            </Link>
+            <div className="nav-right">
+              <div className="nav-links">
+                <NavLinks />
               </div>
-            </nav>
-            {children}
-          </QieWalletGuard>
+              <WalletButton />
+            </div>
+          </nav>
+          {children}
         </Providers>
       </body>
     </html>

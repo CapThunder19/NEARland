@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAccount } from 'wagmi';
+import { useNearWallet } from 'near-connect-hooks';
+import { shortAccountId } from '../lib/near';
 import WalletButton from '../components/WalletButton';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -46,7 +47,7 @@ const FEATURES = [
   { sprite: '/assets/debug/corn_a.png',         title: 'Resource Mining',      desc: 'Dig deep for ores, gems & rare minerals to fuel your empire.' },
   { sprite: '/assets/debug/cabbage_a.png',       title: 'Farm & Harvest',       desc: 'Plant crops, manage workers, and automate your food supply.' },
   { sprite: '/assets/ironmine.png',              title: 'Base Building',        desc: 'Place structures on a canvas grid and expand your settlement.' },
-  { sprite: '/assets/diamondmine.png',           title: 'On‑Chain Persistence', desc: 'Your world is saved to Supabase — pick up right where you left off.' },
+  { sprite: '/assets/diamondmine.png',           title: 'Own Your Economy', desc: 'Sign in with a NEAR account and trade your harvest with other players for NEAR.' },
 ];
 
 // PAGE2_SPRITES removed — small floating boxes disabled per UI request
@@ -94,7 +95,8 @@ const spawnLoot = (container: HTMLElement) => {
 // Main component – a full‑height scroll‑snap container that houses three pages.
 // ---------------------------------------------------------------------------
 export default function LandingPage() {
-  const { address } = useAccount();
+  const { signedAccountId } = useNearWallet();
+  const address = signedAccountId || null;
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -223,14 +225,14 @@ export default function LandingPage() {
                 // -------------------------------------------------------------------
                 <>
                   <header className="landing-header">
-                    <div className="logo-text">QUANTUM QIE</div>
+                    <div className="logo-text">NEARLAND</div>
                     {!address ? (
                       <div className="wallet-connect-wrapper">
                         <WalletButton />
                       </div>
                     ) : (
                       <div className="wallet-connected-badge">
-                        {address.slice(0, 6)}...{address.slice(-4)} CONNECTED
+                        {shortAccountId(address)} CONNECTED
                       </div>
                     )}
                   </header>
@@ -241,7 +243,7 @@ export default function LandingPage() {
                     <p className="hero-subtitle">{sector.subtitle}<br />{sector.subtitle2}</p>
                     <div className="cta-container">
                       {!address ? (
-                        <div className="cta-hint">Connect your wallet to begin</div>
+                        <div className="cta-hint">Connect a NEAR account to begin</div>
                       ) : (
                         <button className="btn-enter-game" onClick={handleEnterGame}>
                           ENTER FACTORY HUB

@@ -2,7 +2,7 @@
 @import '../styles/hub-theme.css';
 
 /* ========================================
-   QuantumQie — Dark Industrial Theme
+   NEARland — Dark Industrial Theme
    ======================================== */
 
 :root {
@@ -1184,212 +1184,20 @@ html, body {
   }
 }
 
+
 /* ========================================
-   Qie Wallet Guard Overlay & Loading
+   NEAR boot screen (shown until the wallet connector mounts in the browser)
    ======================================== */
 
-.qie-guard-loading {
+.near-boot-screen {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: #0a0a0f;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  font-family: 'Silkscreen', monospace;
-  color: var(--accent-cyan, #00d4ff);
-  letter-spacing: 2px;
-}
-
-.qie-guard-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(0, 212, 255, 0.1);
-  border-top-color: var(--accent-cyan, #00d4ff);
-  border-radius: 50%;
-  animation: qie-spin 1s linear infinite;
-}
-
-@keyframes qie-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.qie-guard-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: radial-gradient(circle at 50% 50%, #141118 0%, #07060a 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  box-sizing: border-box;
-}
-
-.qie-guard-card {
-  width: 100%;
-  max-width: 520px;
-  background: linear-gradient(180deg, rgba(28, 22, 38, 0.95), rgba(15, 12, 22, 0.95));
-  border: 2px solid rgba(255, 78, 101, 0.3);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 
-              0 0 30px rgba(255, 78, 101, 0.1),
-              inset 0 0 20px rgba(255, 78, 101, 0.05);
-  border-radius: 12px;
-  padding: 32px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.qie-guard-warning-strip {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: repeating-linear-gradient(
-    -45deg,
-    #ff4e65,
-    #ff4e65 10px,
-    #0f0c16 10px,
-    #0f0c16 20px
-  );
-}
-
-.qie-guard-icon-wrap {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: rgba(255, 78, 101, 0.1);
-  border: 1px solid rgba(255, 78, 101, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 0 15px rgba(255, 78, 101, 0.15);
-}
-
-.qie-guard-icon {
-  width: 32px;
-  height: 32px;
-  color: #ff4e65;
-}
-
-.qie-guard-title {
-  font-family: 'Press Start 2P', cursive;
-  font-size: 20px;
-  color: #ff4e65;
-  margin: 0 0 10px 0;
-  letter-spacing: 1px;
-  text-shadow: 0 0 10px rgba(255, 78, 101, 0.2);
-}
-
-.qie-guard-subtitle {
-  font-family: 'Silkscreen', sans-serif;
-  font-size: 11px;
-  color: var(--text-secondary, #d9d0b8);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin: 0 0 24px 0;
-}
-
-.qie-guard-text {
+  color: #00ec97;
+  font-family: monospace;
+  letter-spacing: 0.15em;
   font-size: 14px;
-  line-height: 1.6;
-  color: rgba(239, 232, 211, 0.8);
-  margin: 0 0 32px 0;
-  font-family: sans-serif;
 }
-
-.qie-guard-text strong {
-  color: var(--accent-cyan, #00d4ff);
-}
-
-.qie-guard-actions {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.qie-guard-btn-primary {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: #ff4e65;
-  color: #fff;
-  border: none;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 10px;
-  text-decoration: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 0 #b32a3b, 0 8px 20px rgba(255, 78, 101, 0.3);
-}
-
-.qie-guard-btn-primary:hover {
-  background: #ff657a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 #b32a3b, 0 12px 24px rgba(255, 78, 101, 0.4);
-}
-
-.qie-guard-btn-primary:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #b32a3b, 0 4px 10px rgba(255, 78, 101, 0.3);
-}
-
-.qie-guard-btn-secondary {
-  width: 100%;
-  padding: 12px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  font-family: 'Silkscreen', sans-serif;
-  font-size: 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.qie-guard-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.qie-guard-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Silkscreen', monospace;
-  font-size: 9px;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.qie-guard-status-dot {
-  width: 6px;
-  height: 6px;
-  background: #ff4e65;
-  border-radius: 50%;
-  box-shadow: 0 0 6px #ff4e65;
-  animation: qie-pulse 1.5s infinite;
-}
-
-@keyframes qie-pulse {
-  0% { opacity: 0.3; }
-  50% { opacity: 1; }
-  100% { opacity: 0.3; }
-}
-
