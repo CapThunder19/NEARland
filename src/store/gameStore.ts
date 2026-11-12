@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getSupabaseClient } from '../lib/supabaseClient';
+import { saveIdForAccount } from '../lib/near';
 import { BASE_WORKER_COSTS, LEVEL_UPGRADE_COST } from '../game/economyConstants';
 
 export type WorkerType = 'farmer' | 'miner' | 'engineer';
@@ -94,12 +94,6 @@ type InventoryRow = {
   level?: number;
 };
 
-type LegacyInventoryRow = {
-  save_id: string;
-  money: number;
-  food: number;
-};
-
 type WorkerRow = {
   id: string;
   save_id: string;
@@ -155,20 +149,8 @@ function mapWorkerRow(row: WorkerRow): Worker {
   };
 }
 
-function formatSaveId(address: string | null): string | null {
-  return address ? `wallet:${address.toLowerCase()}` : null;
-}
-
-function toLegacyFood(inventory: Inventory): number {
-  return inventory.wheat + inventory.potato + inventory.rice;
-}
-
-function toLegacyInventoryRow(saveId: string, inventory: Inventory): LegacyInventoryRow {
-  return {
-    save_id: saveId,
-    money: inventory.money,
-    food: toLegacyFood(inventory),
-  };
+function formatSaveId(accountId: string | null): string | null {
+  return accountId ? saveIdForAccount(accountId) : null;
 }
 
 function clampNumber(value: number, min: number, max: number): number {
@@ -201,15 +183,11 @@ export const useGameStore = create<GameState>((set, get) => {
       console.warn('No saveId (wallet not connected); aborting save.');
       return false;
     }
+    // Never overwrite a saved world with defaults before it has been loaded.
+    if (!get().isHydrated) return false;
 
     const { inventory, workers, villageName, level } = get();
     const inventoryRow: InventoryRow = { save_id: saveId, ...inventory, village_name: villageName.trim(), level };
-    const persistedInventoryRow = {
-      save_id: saveId,
-      ...inventory,
-      village_name: villageName.trim(),
-    };
-    const legacyInventoryRow = toLegacyInventoryRow(saveId, inventory);
     const workerRows: WorkerRow[] = workers.map((worker) => ({
       id: worker.id,
       save_id: saveId,
@@ -221,122 +199,48 @@ export const useGameStore = create<GameState>((set, get) => {
       const response = await fetch('/api/save-state', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          saveId,
-          inventory: persistedInventoryRow,
-          workers: workerRows,
-        }),
+        body: JSON.stringify({ saveId, inventory: inventoryRow, workers: workerRows }),
       });
-
-      if (response.ok) {
-        return true;
-      }
-
-      const errorText = await response.text();
-      console.warn('Server save-state endpoint failed:', response.status, errorText);
+      if (response.ok) return true;
+      console.warn('Server save-state endpoint failed:', response.status, await response.text());
     } catch (error) {
       console.warn('Server save-state endpoint unavailable:', error);
     }
-
-    const client = getSupabaseClient();
-    if (!client) {
-      console.warn('Supabase client unavailable; aborting fallback save.');
-      return false;
-    }
-
-    const { error: inventoryError } = await client
-      .from('inventory')
-      .upsert(persistedInventoryRow, { onConflict: 'save_id' });
-
-    if (inventoryError) {
-      const legacyFallback = await client
-        .from('inventory')
-        .upsert(legacyInventoryRow, { onConflict: 'save_id' });
-
-      if (legacyFallback.error) {
-        console.warn('Supabase inventory fallback save failed:', legacyFallback.error.message, {
-          inventoryRow,
-          legacyInventoryRow,
-        });
-        return false;
-      }
-    }
-
-    if (workerRows.length === 0) return true;
-
-    const { error: workerError } = await client
-      .from('workers')
-      .upsert(workerRows, { onConflict: 'save_id,id' });
-
-    if (workerError) {
-      console.warn('Supabase worker fallback save failed:', workerError.message, { workerRows });
-      return false;
-    }
-
-    return true;
+    return false;
   };
 
   const hydrateFromSupabase = async () => {
     const { isHydrated, isHydrating } = get();
     if (isHydrated || isHydrating) return;
 
+    const saveId = getSaveId();
+    if (!saveId) return;
+
     set({ isHydrating: true });
 
-    const client = getSupabaseClient();
-    if (!client) {
-      set({ isHydrated: true, isHydrating: false });
-      return;
+    try {
+      const response = await fetch(`/api/world?saveId=${encodeURIComponent(saveId)}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+      const data = (await response.json()) as { inventory: Partial<InventoryRow> | null; workers: WorkerRow[] };
+
+      // The account may have changed while the request was in flight.
+      if (getSaveId() !== saveId) return;
+
+      set({
+        inventory: normalizeInventory(data.inventory ?? undefined),
+        villageName: normalizeVillageName(data.inventory),
+        level: typeof data.inventory?.level === 'number' ? data.inventory.level : 1,
+        workers: data.workers.map(mapWorkerRow),
+        isHydrated: true,
+        isHydrating: false,
+      });
+
+      if (!data.inventory) void saveState(); // first visit: create the row
+    } catch (error) {
+      // Leave isHydrated false so autosave cannot overwrite the real save with defaults.
+      console.warn('World load failed:', error);
+      set({ isHydrating: false });
     }
-
-    const saveId = getSaveId();
-    if (!saveId) {
-      set({ isHydrated: true, isHydrating: false });
-      return;
-    }
-
-    const inventoryResponse = await client
-      .from('inventory')
-      .select('save_id, money, wheat, potato, rice, iron_ore, copper_ore, diamond, iron_bar, copper_bar, gold_ore, gold_bar, bread, tool, village_name, food, level')
-      .eq('save_id', saveId)
-      .maybeSingle();
-
-    let inventory = normalizeInventory(inventoryResponse.data ?? undefined);
-    let villageName = normalizeVillageName(inventoryResponse.data ?? undefined);
-    let level = typeof inventoryResponse.data?.level === 'number' ? inventoryResponse.data.level : 1;
-
-    if (inventoryResponse.error) {
-      console.warn('Supabase inventory load failed:', inventoryResponse.error.message);
-
-      const legacyInventoryResponse = await client
-        .from('inventory')
-        .select('save_id, money, food')
-        .eq('save_id', saveId)
-        .maybeSingle();
-
-      if (legacyInventoryResponse.error) {
-        console.warn('Supabase legacy inventory load failed:', legacyInventoryResponse.error.message);
-      } else {
-        inventory = normalizeInventory(legacyInventoryResponse.data ?? undefined);
-        villageName = normalizeVillageName(legacyInventoryResponse.data ?? undefined);
-      }
-    }
-
-    if (!inventoryResponse.data && !inventoryResponse.error) {
-      await client.from('inventory').upsert({ save_id: saveId, ...inventory, village_name: villageName, level }, { onConflict: 'save_id' });
-    }
-
-    const workersResponse = await client
-      .from('workers')
-      .select('id, type, assigned_building_id, save_id')
-      .eq('save_id', saveId);
-
-    if (workersResponse.error) {
-      console.warn('Supabase worker load failed:', workersResponse.error.message);
-    }
-
-    const workers = (workersResponse.data ?? []).map(mapWorkerRow);
-
-    set({ inventory, workers, villageName, level, isHydrated: true, isHydrating: false });
   };
 
   return {
