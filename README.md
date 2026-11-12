@@ -100,10 +100,6 @@ Browser (Next.js 16, React 19, canvas engine)
 - `src/lib/`: NEAR helpers (`near.ts` shared, `nearServer.ts` server-only), Supabase clients
 - `supabase/schema.sql`: database schema (safe to re-run)
 
-## Hackathon disclosure
-
-The base farming/mining gameplay was written before the hackathon (the first commit, `0c508d7`). Everything NEAR was built during the hackathon window: wallet login, the market contract, the bridge, escrowed trading and server-side saves. [See the diff](https://github.com/CapThunder19/NEARland/compare/0c508d7...main).
-
 Built with Next.js, React, Zustand, GSAP, Supabase, `near-connect-hooks`, `near-api-js`, `near-sdk` (Rust) and `cargo-near`.
 
 ## License
