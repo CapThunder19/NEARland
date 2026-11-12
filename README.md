@@ -1,116 +1,111 @@
-# QuantumQie
+# NEARland
 
-QuantumQie is a browser-based, canvas-driven resource-management / base-building game built with Next.js and React. Place farms and mines, assign workers, harvest resources, and persist your world using Supabase. The game integrates Ethereum wallet sign-in via Wagmi and RainbowKit for player identity.
+A pixel farming-and-mining economy game where the goods you produce can leave the game and be traded with other players for NEAR, with payment and delivery settled atomically by a smart contract.
 
-## Features
+Built for **NEAR HACKATHON 2026**, track **Games With Real Economies** (`games`).
 
-- Canvas-rendered, tile-based world with procedurally drawn building art
-- Placeable buildings: farms (carrot/rice/cabbage), mines (copper/iron/diamond), warehouse
-- Workers that can be hired and assigned to buildings to produce resources
-- Production, harvesting, and autosave persistence via Supabase
-- Wallet-based identity (Wagmi + RainbowKit) for per-player saves
-- Lightweight, dependency-minimal engine with zoom, minimap, and intuitive input
+## The problem
 
-## Quick Demo / Run
+In most browser games the economy is a spreadsheet the developer owns. Items cannot leave the game, player-to-player trades need trust (or a middleman), and nothing a player earns is verifiable outside the game's database.
 
-Prerequisites:
+## What NEARland does
 
-- Node.js (18+ recommended)
-- npm / pnpm / yarn
+1. **Play:** place farms and mines, hire workers, harvest crops and ore, smelt bars, bake bread and forge tools.
+2. **Bridge:** send any of the 12 resources from your in-game storehouse to your NEAR account. The game server debits your save and mints the same amount on the NEARland contract.
+3. **Trade:** list items for NEAR. The items are escrowed by the contract. A buyer attaches NEAR to `buy_listing`, and in **one transaction** the seller is paid, the buyer receives the items, and any overpayment is refunded.
+4. **Return:** burn items with `withdraw_to_game`. The server verifies the transaction on-chain and credits your storehouse. Each transaction can be redeemed once.
 
-Install dependencies and run the development server:
+You sign in with any NEAR wallet (HOT, Meteor, Intear, MyNearWallet). One free NEP-413 signature per session proves to the server that you own the account, so the bridge cannot be used by anyone else.
+
+## How NEAR is used
+
+| Piece | Where | What it does |
+| --- | --- | --- |
+| Market contract (Rust, near-sdk 5.30) | [`contract/src/lib.rs`](contract/src/lib.rs) | On-chain balances of the 12 items (`mt_balance_of` in the style of NEP-245), escrowed listings, atomic `buy_listing`, `cancel_listing`, `transfer`, `withdraw_to_game`, NEP-297 `EVENT_JSON` logs |
+| Game-server minter | `game.<contract>` sub-account, [`src/app/api/chain/deposit`](src/app/api/chain/deposit/route.ts) | The only account allowed to `mint`; signs with near-api-js on the server |
+| Withdrawal verifier | [`src/app/api/chain/withdraw`](src/app/api/chain/withdraw/route.ts), [`src/lib/nearServer.ts`](src/lib/nearServer.ts) | Reads the transaction from RPC, checks signer, receiver and `withdraw_to_game` events, records the hash so it cannot be replayed |
+| Wallet login | [`src/app/providers.tsx`](src/app/providers.tsx), [`src/app/api/session`](src/app/api/session/route.ts) | NEAR Connector (`near-connect-hooks`); NEP-413 signed message verified server-side (ed25519 + full-access-key check) |
+
+**Deployed on testnet:** [`nearland-687e.testnet`](https://testnet.nearblocks.io/address/nearland-687e.testnet) (owner/minter `game.nearland-687e.testnet`).
+
+## Try it (judges)
+
+### Option A: run locally
+
+Prerequisites: Node.js 20+, a Supabase project (free tier), a NEAR **testnet** wallet with a little testnet NEAR ([faucet](https://near-faucet.io)).
 
 ```bash
 npm install
-npm run dev
+cp .env.example .env.local      # fill in the values, see below
+npm run dev                     # http://localhost:3000
 ```
 
-Open http://localhost:3000 in your browser. Connect a wallet on the landing page and navigate to the Game screen.
+In the Supabase SQL editor, run [`supabase/schema.sql`](supabase/schema.sql) once.
 
-## Gameplay Overview
+`.env.local`:
 
-- Place buildings by selecting a building (hotkeys shown in the UI or press `1`–`6`) and left-click on the canvas to place.
-- Right-click to remove (or press `x` to toggle remove mode).
-- Click a ready building to harvest its output.
-- Assign workers by clicking an unassigned building (workers appear in the Workers panel) — different building types require different worker types (farmers or miners).
-- The world autosaves periodically to Supabase.
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_NEAR_NETWORK` | `testnet` |
+| `NEXT_PUBLIC_NEAR_CONTRACT_ID` | `nearland-687e.testnet`, or your own deployment (see below) |
+| `NEAR_GAME_ACCOUNT_ID` / `NEAR_GAME_PRIVATE_KEY` | the minter account set as `owner_id` of the contract |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | from Supabase → Project Settings → API |
+| `NEARLAND_SESSION_SECRET` | any random string of 32+ characters |
 
-## Controls
+Minting needs the minter's key, so to run the full bridge locally, deploy your own copy of the contract (below) and use your own minter account.
 
-- Place / Interact: Left Click
-- Remove: Right Click (or toggle remove with `x`)
-- Rotate selected building: `r`
-- Deselect / Cancel: `q` or `Escape`
-- Building hotkeys: `1`..`6`
-- Canvas receives keyboard input when focused (click the canvas or tab into it)
+### Walkthrough: do X, see Y
 
-## Buildings (summary)
+| Do | See |
+| --- | --- |
+| Click **Connect NEAR**, choose a wallet, approve | Your account ID in the top bar; **Enter Factory Hub** appears |
+| Factory Hub: press `1`, click the grass | A Carrot Farm is placed; coins go down by 40 |
+| Workers: hire a Farmer; back in Factory Hub click the farm | The worker is assigned and the progress bar fills (5 s) |
+| Click the farm when it glows | 10 Carrot Bundles in your storehouse |
+| Leave the page and come back | The farm, worker and stock are still there (server-side save) |
+| NEAR Exchange → Bridge → Carrot Bundles, 5 → **Send to NEAR**, sign the message | Banner with a nearblocks link; "On your NEAR account: Carrot Bundles x5"; storehouse is 5 lower |
+| List for NEAR → 5 at `0.001` → **Publish listing**, approve | The listing appears under Live Listings; the items left your on-chain balance (escrow) |
+| Sign in with a **second** account → **Buy with NEAR**, approve | Seller receives 0.005 NEAR and buyer receives 5 Carrot Bundles in the same transaction (check the nearblocks link) |
+| As the buyer: **Return to game** | Items burn on-chain and appear in the buyer's storehouse |
+| Click **Return to game** with the same transaction again (via the API) | `409 This transaction was already redeemed.` |
 
-- `1` — Carrot Farm (farm-wheat) — cost: 40
-- `2` — Rice Farm (farm-potato) — cost: 50
-- `3` — Cabbage Farm (farm-rice) — cost: 60
-- `4` — Copper Mine (mine-copper) — cost: 90
-- `5` — Iron Mine (mine-iron) — cost: 110
-- `6` — Diamond Mine (mine-diamond) — cost: 180
-- Warehouse (warehouse) — cost: 0 (stores resources)
+### Deploy your own contract
 
-These definitions and rendering are implemented in `src/game/buildings.ts`.
-
-## Project Structure (high level)
-
-- `app/` — Next.js app routes and pages (React + server/Client components)
-- `src/game/` — game engine, renderer, input, placement, persistence
-- `src/components/` — UI components (Toolbar, HUD, Wallet, etc.)
-- `src/lib/` — small libraries (Supabase client)
-
-Key files:
-
-- [src/app/game/page.tsx](src/app/game/page.tsx) — main game page and React glue
-- [src/game/engine.ts](src/game/engine.ts) — main loop, ticking, and render orchestration
-- [src/game/buildings.ts](src/game/buildings.ts) — building defs & drawing
-- [src/game/persistence.ts](src/game/persistence.ts) — Supabase save/load helpers
-- [src/lib/supabaseClient.ts](src/lib/supabaseClient.ts) — reads required env vars
-
-## Environment variables
-
-The game optionally persists to Supabase and supports a wallet connection. To enable Supabase persistence, set these env vars in a `.env.local` file at the project root:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://<your-project>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-public-key>
-# Optional: WalletConnect project id for RainbowKit features
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=<project-id>
+```bash
+cd contract
+cargo test                                  # 10 unit tests
+cargo near build non-reproducible-wasm
+near contract deploy <your-account>.testnet use-file target/near/nearland_market.wasm \
+  with-init-call new json-args '{"owner_id":"<minter-account>.testnet"}' \
+  prepaid-gas '30 Tgas' attached-deposit '0 NEAR' network-config testnet sign-with-keychain send
 ```
 
-If Supabase env vars are not provided, the game will still run locally but persistence will be disabled and a warning will be logged.
+## Architecture
 
-## Build & Deploy
+```
+Browser (Next.js 16, React 19, canvas engine)
+  ├─ NEAR Connector wallet ── signs create_listing / buy_listing / cancel / withdraw_to_game ──▶ nearland contract
+  └─ fetch /api/*
+        ├─ /api/world, /api/buildings, /api/save-state ─▶ Supabase (service role; RLS on, no browser access)
+        ├─ /api/session  (NEP-413 verify → 24 h HMAC session)
+        ├─ /api/chain/deposit  (debit save → game account mints)  ─────────────────────▶ nearland contract
+        └─ /api/chain/withdraw (verify tx + events → credit save, once per tx)  ◀──── RPC
+```
 
-- Development: `npm run dev`
-- Production build: `npm run build` then `npm run start`
+## Repository layout
 
-This project targets Next.js 16 and React 19. The `package.json` scripts are preconfigured for standard Next.js workflows.
+- `contract/`: NEAR market contract (Rust) with unit tests
+- `src/app/`: Next.js routes and pages (`exchange/` is the NEAR market UI, `api/` the server routes)
+- `src/game/`: canvas engine, buildings, economy constants, persistence, contract client (`nearMarket.ts`)
+- `src/lib/`: NEAR helpers (`near.ts` shared, `nearServer.ts` server-only), Supabase clients
+- `supabase/schema.sql`: database schema (safe to re-run)
 
-## Notes for Developers
+## Hackathon disclosure
 
-- Rendering is canvas based and uses procedural drawing (no heavy sprite atlases required). See `src/game/buildings.ts` and `src/game/renderer.ts` for drawing logic.
-- Input handling and camera controls live in `src/game/input.ts` and `src/game/camera.ts`.
-- Persistence expects a Supabase table named `buildings` with columns matching the fields used in `src/game/persistence.ts` (see file for mappings).
+The base farming/mining gameplay was written before the hackathon (git tag `pre-hackathon`). Everything NEAR was built during the hackathon window: wallet login, the market contract, the bridge, escrowed trading and server-side saves. [See the diff](https://github.com/CapThunder19/NEARland/compare/pre-hackathon...main).
 
-## Contributing
-
-Contributions welcome. Open an issue or PR with a clear description of the change or bug. For feature work, add a short note describing the gameplay impact.
+Built with Next.js, React, Zustand, GSAP, Supabase, `near-connect-hooks`, `near-api-js`, `near-sdk` (Rust) and `cargo-near`.
 
 ## License
 
-This repository does not include a license file. Add `LICENSE` if you want to make the project open source.
-
----
-
-If you want, I can also:
-
-- Add a minimal `README` badge and usage GIF
-- Create a small `SUPABASE_SETUP.md` with SQL schema and table examples
-- Add a `Makefile`/npm script to seed demo saves
-
-
+[MIT](LICENSE)
