@@ -2,39 +2,41 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { useRouter } from 'next/navigation';
+import { useNearWallet } from 'near-connect-hooks';
+import { shortAccountId } from '../lib/near';
 
 export default function WalletButton() {
-  const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? '';
-  const { address } = useAccount();
-  const { connect, connectors, error, isPending, variables } = useConnect();
-  const { disconnect } = useDisconnect();
+  const { signedAccountId, loading, signIn, signOut } = useNearWallet();
   const router = useRouter();
+  const [error, setError] = React.useState<string | null>(null);
 
-  if (projectId) {
-    return <ConnectButton chainStatus="icon" showBalance={false} accountStatus="address" />;
-  }
-
-  // Fallback UI using injected connectors
-  const handleLogout = () => {
+  const handleLogin = async () => {
+    setError(null);
     try {
-      disconnect();
+      await signIn();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Wallet connection failed.');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
     } finally {
       router.replace('/');
     }
   };
 
-  if (address) {
+  if (signedAccountId) {
     return (
       <div className="wallet-button">
-        <span className="wallet-address">{address.slice(0, 6)}...{address.slice(-4)}</span>
+        <span className="wallet-address" title={signedAccountId}>{shortAccountId(signedAccountId)}</span>
         <div className="wallet-actions">
           <Link href="/profile" className="wallet-profile-link">
             Profile
           </Link>
-          <button className="btn-logout" onClick={handleLogout} type="button">
+          <button className="btn-logout" onClick={() => void handleLogout()} type="button">
             Logout
           </button>
         </div>
@@ -42,24 +44,12 @@ export default function WalletButton() {
     );
   }
 
-  const injected = connectors.find((c) => c.id === 'injected' || c.id === 'qieWallet');
-  const pendingConnector = variables?.connector;
-
   return (
     <div>
-      <button
-        onClick={() => {
-          if (!injected) {
-            return;
-          }
-          connect({ connector: injected });
-        }}
-        disabled={!injected || isPending}
-        className="btn-connect"
-      >
-        {isPending && pendingConnector ? `Connecting ${pendingConnector.name}...` : 'Connect'}
+      <button onClick={() => void handleLogin()} disabled={loading} className="btn-connect" type="button">
+        {loading ? 'Loading...' : 'Connect NEAR'}
       </button>
-      {error && <div className="wallet-error">{error.message}</div>}
+      {error && <div className="wallet-error">{error}</div>}
     </div>
   );
 }
