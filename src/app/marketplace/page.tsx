@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useAccount } from 'wagmi';
-import { useRouter } from 'next/navigation';
+import { useRequireAccount } from '../../hooks/useRequireAccount';
 import { useGameStore, type Inventory } from '../../store/gameStore';
 import { MARKET_PRICE_CONFIG, type ProduceKey } from '../../game/economyConstants';
 import HubPageShell from '../../components/HubPageShell';
@@ -111,15 +110,9 @@ function computeMarketPrice(key: MarketKey, inventory: Inventory): number {
 }
 
 export default function MarketplacePage() {
-  const { address } = useAccount();
-  const router = useRouter();
+  const { accountId: address } = useRequireAccount();
   const { inventory, addResource, hydrateFromSupabase, isHydrated, isHydrating } = useGameStore();
 
-  React.useEffect(() => {
-    if (!address) {
-      router.replace('/');
-    }
-  }, [address, router]);
 
   React.useEffect(() => {
     if (address) {

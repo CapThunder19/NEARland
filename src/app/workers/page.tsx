@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useAccount } from 'wagmi';
-import { useRouter } from 'next/navigation';
+import { useRequireAccount } from '../../hooks/useRequireAccount';
 import { getWorkerCost, useGameStore } from '../../store/gameStore';
 import { getBuildingDef } from '../../game/buildings';
 import { loadBuildings } from '../../game/persistence';
@@ -17,19 +16,13 @@ function workerLabel(type: 'farmer' | 'miner' | 'engineer'): string {
 }
 
 export default function WorkersPage() {
-  const { address } = useAccount();
-  const router = useRouter();
+  const { accountId: address } = useRequireAccount();
   const { inventory, workers, buyWorker, hydrateFromSupabase, isHydrated, isHydrating } = useGameStore();
   const [storageLoading, setStorageLoading] = React.useState(true);
   const [storageList, setStorageList] = React.useState<{ total: number; items: { id: string; name: string; count: number }[] }>(
     { total: 0, items: [] },
   );
 
-  React.useEffect(() => {
-    if (!address) {
-      router.replace('/');
-    }
-  }, [address, router]);
 
   React.useEffect(() => {
     const loadHubData = async () => {

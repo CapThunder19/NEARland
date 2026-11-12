@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useAccount } from 'wagmi';
-import { useRouter } from 'next/navigation';
+import { useRequireAccount } from '../../hooks/useRequireAccount';
 import { useShallow } from 'zustand/shallow';
 import Toolbar from '../../components/Toolbar';
 import HUD from '../../components/HUD';
@@ -17,14 +16,8 @@ import { computeNextBuildingId, loadBuildings, upsertBuildings } from '../../gam
 import { RECIPE_BUILDING_IDS, type RecipeKey } from '../../game/economyConstants';
 
 export default function GamePage() {
-  const { address } = useAccount();
-  const router = useRouter();
+  const { accountId: address } = useRequireAccount();
 
-  React.useEffect(() => {
-    if (!address) {
-      router.replace('/');
-    }
-  }, [address, router]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const minimapCanvasRef = useRef<HTMLCanvasElement>(null);
