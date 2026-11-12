@@ -277,7 +277,7 @@
 }
 
 @media (max-width: 760px) {
-  .qie-exchange-page {
+  .exchange-page {
     padding: 90px 18px 32px;
   }
 
@@ -290,4 +290,11 @@
   .exchange-listing-actions {
     align-items: flex-start;
   }
+}
+.exchange-subhead {
+  margin: 20px 0 10px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.8;
 }
