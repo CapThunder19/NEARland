@@ -30,7 +30,7 @@ type LeaderboardRow = {
 };
 
 function formatWalletAddress(saveId: string): string {
-  return saveId.startsWith('wallet:') ? saveId.slice('wallet:'.length) : saveId;
+  return saveId.startsWith('near:') ? saveId.slice('near:'.length) : saveId;
 }
 
 function toNumber(value: unknown): number {

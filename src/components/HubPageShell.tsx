@@ -37,8 +37,8 @@ export default function HubPageShell({
               <Link href="/marketplace" className="hub-quick-link">
                 Marketplace
               </Link>
-              <Link href="/qie-exchange" className="hub-quick-link">
-                QIE
+              <Link href="/exchange" className="hub-quick-link">
+                NEAR Exchange
               </Link>
               <Link href="/leaderboard" className="hub-quick-link">
                 Leaderboard

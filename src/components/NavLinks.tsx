@@ -7,7 +7,7 @@ const LINKS = [
   { href: '/game', label: 'Factory Hub' },
   { href: '/workers', label: 'Worker Hub' },
   { href: '/marketplace', label: 'Marketplace' },
-  { href: '/qie-exchange', label: 'QIE Exchange' },
+  { href: '/exchange', label: 'NEAR Exchange' },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/profile', label: 'Profile' },
 ] as const;

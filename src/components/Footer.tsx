@@ -36,7 +36,7 @@ const Footer = () => {
       <div className="footer-inner footer-hero">
         <div className="footer-decor-lines"></div>
         <div className="footer-center-row">
-          <div className="hero-brand" data-text="QuantumQie">QuantumQie</div>
+          <div className="hero-brand" data-text="NEARland">NEARland</div>
           <div className="footer-actions-main">
             <button className="btn-start" onClick={handleStart}>
               <div className="btn-glow"></div>
@@ -48,7 +48,7 @@ const Footer = () => {
         <div className="footer-legal-row">
           <div className="footer-brand-mini-container">
             <div className="status-dot"></div>
-            <div className="footer-brand-mini">QuantumQie © {new Date().getFullYear()}</div>
+            <div className="footer-brand-mini">NEARland © {new Date().getFullYear()}</div>
           </div>
         </div>
       </div>

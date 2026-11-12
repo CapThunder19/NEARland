@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import VillageViewer from './VillageViewer';
+import { shortAccountId } from '../lib/near';
 
 type Row = {
   save_id: string;
@@ -12,7 +13,7 @@ type Row = {
 };
 
 function formatAddress(value: string): string {
-  return value.length > 12 ? `${value.slice(0, 6)}...${value.slice(-4)}` : value;
+  return shortAccountId(value);
 }
 
 type LeaderboardProps = {
