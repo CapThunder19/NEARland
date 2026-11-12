@@ -2,9 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useAccount, useBalance, useChainId, useDisconnect } from 'wagmi';
-import { qie } from '../../lib/chains';
+import { useNearWallet } from 'near-connect-hooks';
 import { useRouter } from 'next/navigation';
+import { NEAR_NETWORK, explorerAccountUrl, formatNear } from '../../lib/near';
 import HubPageShell from '../../components/HubPageShell';
 import { useGameStore } from '../../store/gameStore';
 import './profile.css';
@@ -24,32 +24,40 @@ const RESOURCE_KEYS = [
   'tool',
 ] as const;
 
-function shortAddress(address: string): string {
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
-
-function chainLabel(chainId: number): string {
-  if (chainId === qie.id) return 'QIE Mainnet';
-  if (chainId === 1) return 'Ethereum Mainnet';
-  return `Chain ${chainId}`;
-}
+const NETWORK_LABEL = NEAR_NETWORK === 'mainnet' ? 'NEAR Mainnet' : 'NEAR Testnet';
 
 export default function ProfilePage() {
-  const { address } = useAccount();
-  const chainId = useChainId();
-  const { data: balance } = useBalance({ address });
-  const { disconnect } = useDisconnect();
+  const { signedAccountId, loading: walletLoading, getBalance, signOut } = useNearWallet();
+  const address = signedAccountId || null;
   const router = useRouter();
+  const [balanceYocto, setBalanceYocto] = React.useState<bigint | null>(null);
   const { inventory, workers, villageName, setVillageName, hydrateFromSupabase, isHydrated, isHydrating } = useGameStore();
   const [draftVillageName, setDraftVillageName] = React.useState('');
   const [saveStatus, setSaveStatus] = React.useState<string | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
 
   React.useEffect(() => {
-    if (!address) {
+    if (!walletLoading && !address) {
       router.replace('/');
     }
-  }, [address, router]);
+  }, [walletLoading, address, router]);
+
+  React.useEffect(() => {
+    if (!address) return;
+    let cancelled = false;
+    getBalance(address)
+      .then((value) => {
+        if (!cancelled) setBalanceYocto(value);
+      })
+      .catch(() => {
+        if (!cancelled) setBalanceYocto(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // getBalance is recreated every render by the provider; refetch only when the account changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
 
   React.useEffect(() => {
     if (address) {
@@ -65,12 +73,12 @@ export default function ProfilePage() {
     return RESOURCE_KEYS.reduce((total, key) => total + inventory[key], 0);
   }, [inventory]);
 
-  const statusLabel = chainId === qie.id ? 'QIE online' : 'Wallet connected';
+  const statusLabel = address ? `${NETWORK_LABEL} online` : 'Not connected';
   const displayVillageName = villageName.trim().length > 0 ? villageName.trim() : 'Unnamed Village';
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
-      disconnect();
+      await signOut();
     } finally {
       router.replace('/');
     }
@@ -105,14 +113,18 @@ export default function ProfilePage() {
         <section className="dashboard-card profile-hero-card">
           <div className="profile-hero-top">
             <div className="profile-avatar" aria-hidden="true">
-              {address ? address.slice(2, 4).toUpperCase() : 'QQ'}
+              {address ? address.slice(0, 2).toUpperCase() : 'NL'}
             </div>
             <div className="profile-identity">
-              <p className="profile-kicker">Connected wallet</p>
-              <h2 className="profile-address">{address ? shortAddress(address) : 'Not connected'}</h2>
-              <p className="profile-copy">This address controls your saves, workers, marketplace stock, and QIE listings.</p>
+              <p className="profile-kicker">NEAR account</p>
+              <h2 className="profile-address" title={address ?? undefined}>
+                {address ? (
+                  <a href={explorerAccountUrl(address)} target="_blank" rel="noopener noreferrer">{address}</a>
+                ) : 'Not connected'}
+              </h2>
+              <p className="profile-copy">This NEAR account controls your saves, workers, marketplace stock, and exchange listings.</p>
               <div className="profile-badges">
-                <span className="profile-badge">{chainLabel(chainId)}</span>
+                <span className="profile-badge">{NETWORK_LABEL}</span>
                 <span className="profile-badge profile-badge-accent">{isHydrated && !isHydrating ? 'Sync complete' : 'Syncing data'}</span>
                 <span className="profile-badge">{displayVillageName}</span>
               </div>
@@ -123,7 +135,7 @@ export default function ProfilePage() {
             <div className="profile-metric">
               <span className="profile-metric-label">Wallet balance</span>
               <span className="profile-metric-value">
-                {balance ? `${balance.formatted} ${balance.symbol}` : '0 ETH'}
+                {balanceYocto !== null ? `${formatNear(balanceYocto, 4)} NEAR` : '— NEAR'}
               </span>
             </div>
             <div className="profile-metric">
@@ -185,20 +197,20 @@ export default function ProfilePage() {
                 <span className="profile-link-title">Marketplace</span>
                 <span className="profile-link-copy">Convert extra inventory into credits.</span>
               </Link>
-              <Link href="/qie-exchange" className="profile-link-card">
-                <span className="profile-link-title">QIE Exchange</span>
-                <span className="profile-link-copy">Publish listings for on-chain buyers.</span>
+              <Link href="/exchange" className="profile-link-card">
+                <span className="profile-link-title">NEAR Exchange</span>
+                <span className="profile-link-copy">Sell produce to other players for NEAR.</span>
               </Link>
             </div>
           </section>
 
           <section className="dashboard-card profile-session-card">
             <h2>Session Control</h2>
-            <p className="profile-copy profile-session-copy">Disconnect this wallet and return to the landing screen.</p>
+            <p className="profile-copy profile-session-copy">Sign out of this NEAR account and return to the landing screen.</p>
             <button
               type="button"
               className="profile-logout-btn btn-logout"
-              onClick={handleLogout}
+              onClick={() => void handleLogout()}
             >
               Sign out
             </button>
