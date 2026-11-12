@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { isValidSaveId } from '../../../lib/saveId';
 
 type InventoryRow = {
   save_id: string;
@@ -17,6 +18,7 @@ type InventoryRow = {
   bread: number;
   tool: number;
   village_name?: string;
+  level?: number;
 };
 
 type LegacyInventoryRow = {
@@ -56,8 +58,12 @@ function getAdminClient() {
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as SaveStateBody | null;
 
-  if (!body?.saveId || !body.inventory) {
+  if (!isValidSaveId(body?.saveId) || !body.inventory) {
     return NextResponse.json({ error: 'Invalid save payload.' }, { status: 400 });
+  }
+  const saveId = body.saveId;
+  if (body.inventory.save_id !== saveId || (body.workers ?? []).some((worker) => worker.save_id !== saveId)) {
+    return NextResponse.json({ error: 'Save rows must belong to the save being written.' }, { status: 400 });
   }
 
   const client = getAdminClient();
